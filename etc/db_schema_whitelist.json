@@ -1,0 +1,137 @@
+{
+    "amasty_finder_finder": {
+        "column": {
+            "finder_id": true,
+            "cnt": true,
+            "name": true,
+            "template": true,
+            "meta_title": true,
+            "meta_descr": true,
+            "custom_url": true,
+            "default_category": true,
+            "hide_finder": true,
+            "categories": true,
+            "position": true,
+            "search_page": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "amasty_finder_dropdown": {
+        "column": {
+            "dropdown_id": true,
+            "finder_id": true,
+            "pos": true,
+            "name": true,
+            "sort": true,
+            "range": true,
+            "display_type": true
+        },
+        "index": {
+            "AMASTY_FINDER_DROPDOWN_FINDER_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "FK_B5B1E5E7D06C0EB1E87CC87310EF56B4": true
+        }
+    },
+    "amasty_finder_import_file_log": {
+        "column": {
+            "file_id": true,
+            "file_name": true,
+            "finder_id": true,
+            "started_at": true,
+            "updated_at": true,
+            "ended_at": true,
+            "count_lines": true,
+            "count_processing_lines": true,
+            "last_start_processing_line": true,
+            "count_processing_rows": true,
+            "count_errors": true,
+            "status": true,
+            "is_locked": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "AMASTY_FINDER_IMPORT_FILE_LOG_FILE_NAME_FINDER_ID": true
+        }
+    },
+    "amasty_finder_import_file_log_history": {
+        "column": {
+            "file_id": true,
+            "file_name": true,
+            "finder_id": true,
+            "started_at": true,
+            "updated_at": true,
+            "ended_at": true,
+            "count_lines": true,
+            "count_processing_lines": true,
+            "count_processing_rows": true,
+            "count_errors": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "amasty_finder_import_file_log_errors": {
+        "column": {
+            "error_id": true,
+            "import_file_log_id": true,
+            "import_file_log_history_id": true,
+            "created_at": true,
+            "line": true,
+            "message": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "FK_FB4E0D88598B5842F0E91CDB219AB913": true,
+            "FK_A422A834E76328398C03BA1C4EA085DD": true
+        }
+    },
+    "amasty_finder_map": {
+        "column": {
+            "id": true,
+            "value_id": true,
+            "pid": true,
+            "sku": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "AMASTY_FINDER_MAP_VAL_ID_AMASTY_FINDER_VAL_VAL_ID": true,
+            "AMASTY_FINDER_MAP_VALUE_ID_SKU": true
+        }
+    },
+    "amasty_finder_universal": {
+        "column": {
+            "universal_id": true,
+            "finder_id": true,
+            "sku": true,
+            "pid": true
+        },
+        "index": {
+            "AMASTY_FINDER_UNIVERSAL_FINDER_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "FK_1C09FF827ADB94A5B2EC909FE832E3CA": true
+        }
+    },
+    "amasty_finder_value": {
+        "column": {
+            "value_id": true,
+            "parent_id": true,
+            "dropdown_id": true,
+            "name": true,
+            "image": true
+        },
+        "index": {
+            "AMASTY_FINDER_VALUE_DROPDOWN_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "FK_DF2DE65FA9B6228CC089995407625737": true,
+            "AMASTY_FINDER_VALUE_PARENT_ID_DROPDOWN_ID_NAME": true
+        }
+    }
+}

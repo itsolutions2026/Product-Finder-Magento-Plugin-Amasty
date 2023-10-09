@@ -1,0 +1,701 @@
+<?php
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) 2023 Amasty (https://www.amasty.com)
+ * @package Product Parts Finder for Magento 2
+ */
+
+/**
+ * Copyright © 2015 Amasty. All rights reserved.
+ */
+
+use Amasty\Finder\Model\Source\DisplayType;
+
+/**
+ * @var $block \Amasty\Finder\Block\Form
+ */
+
+
+if ($block->getFinder()->getName() === "ktypeSearch" && $block->isKtype()) {
+    ?>
+    <style>
+        .amfinder-common-wrapper .loader:before{
+            font-size: 65px !important;
+        }
+        .amfinder-common-wrapper .loading-mask {
+            background: rgba(255, 255, 255, 0.95) !important;
+        }
+
+        div.amfinder-ktype-search {
+            float: left;
+            width: 100%;
+        }
+
+        div.amfinder-select-wrapper div.chosen-container {
+            min-width: 350px !important;
+        }
+
+        div.amfinder-select-wrapper select {
+            border: 1px solid rgba(0,0,0,.09);
+            height: 40px;
+            width: 150px;
+        }
+
+        .search-result {
+            clear: both;
+        }
+
+        .search-result-wrapper {
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+        }
+
+        button#change_vehicle {
+            width: 150px;
+            padding: 0px;
+            background-color: red;
+            color: white;
+        }
+
+        button#change_vehicle:before {
+            content: '\f826';
+            font-family: 'porto-icons';
+            font-size: 14px;
+            color: inherit;
+        }
+
+        button#clear_filter {
+            width: 150px;
+            padding: 0px;
+            background-color: #908d8d;
+            color: white;
+        }
+
+        button#clear_filter:before, div.close-ktype-list:before {
+            content: '\f819';
+            font-size: 14px;
+            color: inherit;
+            font-family: 'porto-icons';
+        }
+
+        div.message-notice {
+            padding: 10px;
+            color: #f40305;
+        }
+        div.ktype-list{
+            padding: 10px;
+            box-shadow: 0px 0px 20px 1px;
+            position: relative;
+        }
+
+        div.ktype-list .ktype-label {
+            padding: 3px 0px;
+            font-weight: 600;
+            z-index: 99999;
+            position: relative;
+        }
+
+        div.ktype-list-wrapper .ktype-item{
+            border: 2px solid #dfd2c4;
+            margin: 2px 10px;
+            padding: 4px 10px;
+            cursor: pointer;
+        }
+        div.ktype-list-wrapper .ktype-item:hover {
+            background: black;
+            color: white;
+            border:none;
+        }
+
+        div.ktype-list-wrapper .ktype-item .ktype-item-title {
+            text-decoration: underline;
+            margin-bottom: 2px;
+        }
+
+        div.ktype-list-wrapper .ktype-item .ktype-item-detail {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        div.close-ktype-list {
+            position: absolute;
+            z-index: 3;
+            text-align: center;
+            font-size: 11px;
+            top: 6px;
+            right: 20px;
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            background-color: #fff;
+            color: #222529;
+            border-radius: 50%;
+            box-shadow: 0 2px 6px 0 rgba(0,0,0,.4);
+            cursor: pointer;
+            z-index: 99999;
+        }
+
+        div.close-ktype-list:hover{
+            background-color: #222529;
+            color: #fff;
+        }
+
+        div.ktype-switcher-wrapper{
+            position: relative;
+            height: 70px;
+        }
+
+        div.ktype-switcher{
+            position: absolute;
+            right: 5px;
+            bottom: 3px;
+        }
+
+        div._vin_message , div._rego_message {
+            display: none; color: red; font-size: 12px; line-height: normal
+        }
+
+
+    </style>
+
+    <div class="amfinder-common-wrapper amfinder-ktype-search amfinder-<?= $block->escapeHtml($block->getFinder()->getTemplate()); ?>
+     <?= $block->getHideClassName() ? 'amfinder-hide' : '' ?>"
+         id="<?= 'amfinder_' . (int)$block->getFinder()->getId(); ?>"
+         location="<?= $block->escapeHtml($block->getLocation()); ?>">
+
+        <div class="ktype-list no-display">
+            <div class="ktype-label">
+                <?= "" ?>
+            </div>
+            <div class="ktype-list-wrapper">
+            </div>
+            <div class="ktype-switcher-wrapper">
+                <div class="ktype-switcher">
+                    <div class="amfinder-buttons" data-amfinder-js="buttons">
+                        <?= $block->escapeHtml(__('Can\'t find the vehicle?')) ?>
+                    </div>
+                    <div class="amfinder-buttons"
+                         data-amfinder-js="buttons">
+                        <?= 'Use the '; ?>
+                        <a title="<?= $block->escapeHtml(__('Make/Model')); ?>" class="switch_searchType"
+                           data-ktype="1" style="text-decoration: underline; cursor: pointer">
+                            <?= '<span class="underline">Make/Model Search</span>'; ?>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="loading-mask" data-role="loader" style="/* display: none; */">
+                <div class="loader">
+                    <p>Please wait...</p>
+                </div>
+            </div>
+            <div class="close-ktype-list"></div>
+        </div>
+        <div class="search-result <?= $block->is_Searched()? '':'no-display'; ?>">
+            <div class="search-result-wrapper">
+                <div class="content-wrapper">
+                    <div class="dropdown-title"><?= 'You are currently shopping parts for your:' ?></div>
+                    <div class="dropdown-element amshopby-clearer">
+                        <div class="brand"><?= $block->getKtypeFilterData('ktypeMetaBrand') ?></div>
+                        <div class="model"><?= $block->getKtypeFilterData('ktypeMetaModel') ?></div>
+                        <div class="property"><?= $block->getKtypeFilterData('ktypeMetaProperty') ?></div>
+                    </div>
+                </div>
+                <div class="action-wrapper"
+                     style="display: flex; flex-direction: column; justify-content: space-around">
+                    <div>
+                        <button class="button" id="change_vehicle"
+                                title="<?= $block->escapeHtml(__('Change Vehicle')); ?>">
+                            <?= $block->escapeHtml(__('Change Vehicle')); ?>
+                        </button>
+                    </div>
+                    <div>
+                        <button class="button" id="clear_filter"
+                                title="<?= $block->escapeHtml(__('Clear Filter')); ?>">
+                            <?= $block->escapeHtml(__('Clear Filter')); ?>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" action="<?= $block->escapeUrl($block->getActionUrl()); ?>" class="ktype-search no-display">
+            <input type="hidden" name="finder_id" value="<?= $block->getId() ?>"/>
+            <input type="hidden" name="back_url" value="<?= $block->getBackUrl() ?>"/>
+            <input type="hidden" name="reset_url" value="<?= $block->getResetUrl() ?>"/>
+            <input type="hidden" name="category_id" value="<?= $block->getCurrentCategoryId() ?>"/>
+            <input type="hidden" name="current_apply_url"
+                   value="<?= $block->escapeUrl($block->getCurrentApplyUrlEncoded()) ?>"/>
+            <input type="hidden" name="ktypeNum" value="">
+            <input type="hidden" name="ktypeMetaBrand" value="<?= $block->getKtypeFilterData('ktypeMetaBrand') ?>">
+            <input type="hidden" name="ktypeMetaModel" value="<?= $block->getKtypeFilterData('ktypeMetaModel') ?>">
+            <input type="hidden" name="ktypeMetaProperty" value="<?= $block->getKtypeFilterData('ktypeMetaProperty') ?>">
+            <div class="message-notice">
+                <p><?= 'Unfortunately we do not have any parts listed for your Vehicle: ' ?><span class="car-info"></span></p>
+                <p><?= 'Please try using our Make/Model Search below to for more generic results'?></p>
+                <div class="amfinder-buttons"
+                     data-amfinder-js="buttons">
+                    <?= 'Use the '; ?>
+                    <a title="<?= $block->escapeHtml(__('Make/Model')); ?>" class="switch_searchType"
+                       data-ktype="1" style="text-decoration: underline; cursor: pointer">
+                        <?= '<span class="underline">Make/Model Search</span>'; ?>
+                    </a>
+                </div>
+            </div>
+
+            <ul class="amfinder-toggle" style="display: none">
+                <?php foreach ($block->getFinder()->getDropdowns() as $dropdown) : ?>
+                    <li style="width: 50%" class="am-item -list-item">
+                        <div class="dropdown-title"><?= $block->escapeHtml(__($dropdown->getName())) ?></div>
+                        <div class="dropdown-element amshopby-clearer">
+                            <?php if ($dropdown->getDisplayType() == DisplayType::DROPDOWN) : ?>
+                                <div class="amfinder-select-wrapper">
+                                    <select <?= $block->getDropdownAttributes($dropdown) ?> data-amfinder-js="select"
+                                                                                            class="amfinder-select">
+                                        <?= $block->getDropdownHtml($block->getFinder(), $dropdown); ?>
+                                    </select>
+                                </div>
+                            <?php else : ?>
+                                <div class="amfinder-dropdown-wrapper" data-amfinder-js="wrapper">
+                                    <div class="amfinder-dropdown" <?= $block->getDropdownAttributes($dropdown) ?>
+                                         data-amfinder-js="select">
+                                    <span data-amfinder-js="text">
+                                        <?= $block->escapeHtml(__('Please Select ...')); ?>
+                                    </span>
+                                        <span class="amfinder-reset"
+                                              title="<?= $block->escapeHtml(__('Reset option')); ?>"
+                                              data-amfinder="reset"></span>
+                                    </div>
+                                    <div class="amfinder-details" data-amfinder-js="select-details">
+                                        <?= $block->getDropdownHtml($block->getFinder(), $dropdown); ?>
+                                    </div>
+                                </div>
+                            <?php endif ?>
+                        </div>
+                    </li>
+                <?php endforeach ?>
+                <li class="last -list-item">
+                    <div class="amfinder-buttons <?= ($block->isButtonsVisible() ? '' : 'no-display') ?>"
+                         data-amfinder-js="buttons">
+                        <button class="button" name="reset" value="1" title="<?= $block->escapeHtml(__('Reset')); ?>"
+                                type="submit">
+                            <?= $block->escapeHtml(__('Reset')); ?>
+                        </button>
+                        <button class="button action primary" title="<?= $block->escapeHtml(__('Find')); ?>"
+                                type="submit">
+                            <?= $block->escapeHtml(__('Find')) ?>
+                        </button>
+                    </div>
+                </li>
+            </ul>
+        </form>
+
+        <form method="post" action="<?= $block->escapeUrl($block->getActionUrl()); ?>" class="vin-rego-form <?= !$block->is_Searched()? '':'no-display'; ?>">
+            <input type="hidden" name="finder_id" value="<?= $block->getId() ?>"/>
+            <input type="hidden" name="back_url" value="<?= $block->getBackUrl() ?>"/>
+            <input type="hidden" name="reset_url" value="<?= $block->getResetUrl() ?>"/>
+            <input type="hidden" name="category_id" value="<?= $block->getCurrentCategoryId() ?>"/>
+            <input type="hidden" name="current_apply_url"
+                   value="<?= $block->escapeUrl($block->getCurrentApplyUrlEncoded()) ?>"/>
+            <div class="search-container">
+                <ul class="amfinder-toggle">
+                    <li style="width: 35%" class="am-item -list-item">
+                        <div class="dropdown-title"><?= 'Enter Vin Number' ?></div>
+                        <div class="dropdown-element amshopby-clearer" style="display: flex; position: relative">
+                            <input name="vin_num" placeholder="JTEBY29J100050152" type="text">
+                            <button class="button" id="vin_search"
+                                    data-title="<?= $block->escapeHtml(__('vin_search')); ?>"
+                                    style="background: black; color: white;">
+                                <?= $block->escapeHtml(__('Search')); ?>
+                            </button>
+                        </div>
+                        <div class="_vin_message">
+                            <?= 'Vin number must be exactly 17 digits {a-z, 0-9}, please check again.' ?>
+                        </div>
+                    </li>
+                    <li style="min-width: 30px;" class="am-item -list-item">
+                        <div style="height: 74px; padding-top: 40px; text-align: center">
+                            Or
+                        </div>
+                    </li>
+                    <li style="width: 50%; display: flex;" class="am-item -list-item">
+                        <div>
+                            <div class="dropdown-title"><?= 'State' ?></div>
+                            <div class="dropdown-element amshopby-clearer">
+                                <div class="amfinder-select-wrapper">
+                                    <select name="ktype_state" class="amfinder-select">
+                                        <option value="0">Please Select ...</option>
+                                        <option value="NSW">NSW</option>
+                                        <option value="QLD">QLD</option>
+                                        <option value="NT">NT</option>
+                                        <option value="VIC">VIC</option>
+                                        <option value="TAS">TAS</option>
+                                        <option value="WA">WA</option>
+                                        <option value="SA">SA</option>
+                                        <option value="ACT">ACT</option>
+                                    </select>
+
+                                </div>
+                            </div>
+                            <div class="select_error_message" style="display: none; color: red; font-size: 12px; line-height: normal;">
+                                <?= 'Select one state.' ?>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="dropdown-title"><?= 'Enter Rego Number' ?></div>
+                            <div class="dropdown-element amshopby-clearer" style="display: flex; position: relative">
+                                <input name="rego_num" placeholder="ACL448" type="text">
+                                <button class="button" id="rego_search"
+                                        data-title="<?= $block->escapeHtml(__('rego_search')); ?>"
+                                        style="background: black; color: white;">
+                                    <?= $block->escapeHtml(__('Search')); ?>
+                                </button>
+                            </div>
+                            <div class="_rego_message">
+                                <?= 'Rego Number must be from 1 digit to 7 digits {a-z, 0-9}, please check again.' ?>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="last -list-item">
+                        <div class="amfinder-buttons" data-amfinder-js="buttons">
+                            <?= $block->escapeHtml(__('Can\'t find the vehicle?')) ?>
+                        </div>
+                        <div class="amfinder-buttons"
+                             data-amfinder-js="buttons">
+                            <?= 'Use the '; ?>
+                            <a title="<?= $block->escapeHtml(__('Make/Model')); ?>" class="switch_searchType"
+                               data-ktype="1" style="text-decoration: underline; cursor: pointer">
+                                <?= '<span class="underline">Make/Model Search</span>'; ?>
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </form>
+
+    </div>
+    <script type="text/javascript">
+        require(['jquery', 'Amasty_Finder/js/amfinder'], function ($) {
+            var finderConfig = <?= $block->getJsonConfig(); ?>;
+
+            $("#" + finderConfig.containerId).amfinder(finderConfig);
+
+            let labels = {
+                'search_db' : 'Searching Database...',
+                'rego_not_found' : 'Registration Number Not Found, please enter your VIN number instead.',
+                'vim_not_found' : 'Vin Number Not Found, please use the Make/Model Search.',
+                'multi_result' : 'Search resulted in multiple options. Please select correct vehicle below:',
+                'single_result' : 'Search resulted in one option. Select it below:'
+            }
+
+            let ajax;
+            let url = "<?php echo $block->getActionKtypeUrl(); ?>";
+            let ktype_item_template = '<div class="ktype-item" data-ktypeNum="{{ktype}}" data-ktypeMetaBrand="{{ktype_meta_brand}}" data-ktypeMetaModel="{{ktype_meta_model}}" data-ktypeMetaProperty="{{ktype_meta_property}}">' +
+                '<div class="ktype-item-title">{{shortNameCar}}</div> ' +
+                '<div class="ktype-item-detail"> ' +
+                '<div>{{bodyCar}}</div> ' +
+                '<div>{{fuelSystem}}</div> ' +
+                '<div>{{driveType}}</div> ' +
+                '<div>{{ccmCar}} ccm</div> ' +
+                '<div>{{kwCar}} kw</div> ' +
+                '<div>{{hpCar}} hp</div> ' +
+                '<div>{{listEngines}}</div></div></div>';
+
+            function _onSwitchType() {
+                let current_URL = new URL(window.location.href);
+                let search_params = current_URL.searchParams;
+
+                search_params.set('ktype', $(this).data('ktype'));
+                current_URL.search = search_params.toString();
+
+                window.location.href = current_URL.toString();
+            }
+
+            function load_start() {
+                $('div.ktype-label').text(labels.search_db);
+                $('div.ktype-list').show();
+                $('form.vin-rego-form').hide();
+                show_loading_animation();
+            }
+
+            function display_no_result(searchType){
+                if(searchType === 'vin_search'){
+                    $('div.ktype-label').text(labels.vim_not_found);
+                }
+                else if (searchType === 'rego_search') {
+                    $('div.ktype-label').text(labels.rego_not_found);
+                }
+                $('div.ktype-list').show();
+                $('form.vin-rego-form').hide();
+                remove_loading_animation()
+            }
+
+            function remove_loading_animation(){
+                $('.amfinder-common-wrapper .loading-mask').hide();
+            }
+
+            function show_loading_animation(){
+                $('.amfinder-common-wrapper .loading-mask').show();
+            }
+
+            function _ktypeSearch(event) {
+                event.preventDefault();
+                let search_type = $(this).data('title');
+
+                if($(this).prop('tabindex') != "1"){
+                    search_type === "vin_search"? $("button#rego_search").click():$("button#vin_search").click();
+                    return false;
+                }
+
+                let validation = true;
+                let state = $("select[name='ktype_state']").val();
+
+
+
+                let regoNumber = $("input[name='rego_num']").val();
+                let vinNumber = $("input[name='vin_num']").val();
+
+                if (search_type === "vin_search") {
+                    if (!vinNumber || !vinNumber.match(/^( ?[a-zA-Z0-9]){17}$/)) {
+                        $("._vin_message").show();
+                        validation = false;
+                    }
+                } else if (search_type === "rego_search") {
+
+                    if (!state || state === "0") {
+                        validation = false;
+                        $(".select_error_message").show();
+                    }
+
+                    if (!regoNumber || !regoNumber.match(/^( ?[a-zA-Z0-9]){1,7}$/)) {
+                        $("._rego_message").show();
+                        validation = false;
+                    }
+
+                } else {
+                    validation = false;
+                }
+
+                if (validation) {
+                    load_start()
+                    ajax = $.ajax({
+                        url: url,
+                        type: "POST",
+                        data: {
+                            state: state,
+                            search_type: search_type,
+                            value: search_type === "vin_search" ? vinNumber : regoNumber
+                        },
+                        cache: true,
+                        success: function (res) {
+                            try {
+                                let response = JSON.parse(res);
+                                console.log(response)
+                                if(response && response.status && response.count > 0){
+
+                                    if (response.count > 1){
+                                        $('div.ktype-label').text(labels.multi_result);
+                                    }
+                                    else{
+                                        $('div.ktype-label').text(labels.single_result);
+                                    }
+
+                                    $('.ktype-list-wrapper').html('');
+
+                                    response.cars.forEach((item)=>{
+                                        let replaced = ktype_item_template.replace( /\{{(.*?)\}}/g, (_, innnerText) => {
+
+                                            switch(innnerText){
+                                                case 'ktype_meta_brand':
+                                                     return item.modelCar + ' - ' + item.bodyCar + '|' + item.fuelSystem + '|' + item.driveType
+                                                case 'ktype_meta_model':
+                                                    return item.typeCar + ' [' + item.typeFromYearCar.slice(0,4) + ' - ' + item.typeToYearCar.slice(0,4) + ']'
+                                                case 'ktype_meta_property':
+                                                    return item.ccmCar + ' ccm, ' + item.kwCar + ' kw, ' + item.hpCar + ' hp'
+                                            }
+                                            return item[innnerText]? item[innnerText] : ''
+                                        })
+                                        $('.ktype-list-wrapper').append(replaced);
+                                        remove_loading_animation();
+                                    })
+                                } else {
+                                    throw new Error('no_result')
+                                }
+                            } catch (e) {
+                                console.log(e)
+                                display_no_result(search_type)
+                            }
+                        },
+                        error: function (error) {
+                            if(error.statusText !== 'abort')
+                            display_no_result(search_type)
+                        }
+                    })
+                }
+                else{
+                    return false
+                }
+            }
+
+            function _clearKtypeErrorFields() {
+                $(".select_error_message").hide();
+                $("._vin_message").hide();
+                $("._rego_message").hide();
+                $("div.dropdown-element button").prop('tabindex', "-1")
+                $(this).parent().closest("li.am-item").find("button").prop('tabindex', 1)
+            }
+
+            $(document).on('click', "button#rego_search, button#vin_search", _ktypeSearch)
+
+            $(document).on('change', "select[name='ktype_state']", _clearKtypeErrorFields)
+
+            $(document).on('input', "input[name='rego_num'], input[name='vin_num']", _clearKtypeErrorFields)
+
+            $(document).on('click', "div.search-result button#clear_filter", function(){
+                $("form.ktype-search button[name='reset']").click();
+            })
+
+            $(document).on('click', "div.search-result button#change_vehicle", function(){
+                $("div.search-result").hide();
+                $('form.vin-rego-form').show();
+            })
+
+            $(document).on('click', "div.close-ktype-list", function(){
+                $('div.ktype-list-wrapper').html('')
+                $('div.ktype-list').hide();
+                $('form.vin-rego-form').show();
+                if(ajax) ajax.abort();
+            })
+
+            $(document).on('click', "div.ktype-item", function(){
+
+                let ktypeNum = $(this).data('ktypenum');
+                let ktypeMetaBrand = $(this).data('ktypemetabrand');
+                let ktypeMetaModel = $(this).data('ktypemetamodel');
+                let ktypeMetaProperty = $(this).data('ktypemetaproperty');
+
+                let exists = $("form.ktype-search select.amfinder-select option:contains(" + ktypeNum + ")").length !== 0;
+
+                if(exists){
+                    let option_val = $("form.ktype-search select.amfinder-select option:contains(" + ktypeNum + ")").val()
+                    $("form.ktype-search select.amfinder-select").val(option_val).trigger("chosen:updated");
+                    $("form.ktype-search input[name='ktypeNum']").val(ktypeNum)
+                    $("form.ktype-search input[name='ktypeMetaBrand']").val(ktypeMetaBrand)
+                    $("form.ktype-search input[name='ktypeMetaModel']").val(ktypeMetaModel)
+                    $("form.ktype-search input[name='ktypeMetaProperty']").val(ktypeMetaProperty)
+                    $("form.ktype-search").submit();
+                }else{
+                    $('div.ktype-list').hide();
+                    $('form.ktype-search span.car-info').text(ktypeMetaBrand);
+                    $('form.ktype-search').show();
+
+                }
+            })
+
+            $("#" + finderConfig.containerId).on('click', "a.switch_searchType", _onSwitchType)
+        });
+    </script>
+    <br/>
+
+<?php } else if ($block->getFinder()->getName() !== "ktypeSearch" && !$block->isKtype()) {
+    ?>
+    <div class="amfinder-common-wrapper amfinder-<?= $block->escapeHtml($block->getFinder()->getTemplate()); ?>
+     <?= $block->getHideClassName() ? 'amfinder-hide' : '' ?>"
+         id="<?= 'amfinder_' . (int)$block->getFinder()->getId(); ?>"
+         location="<?= $block->escapeHtml($block->getLocation()); ?>">
+
+        <form method="post" action="<?= $block->escapeUrl($block->getActionUrl()); ?>">
+            <input type="hidden" name="finder_id" value="<?= $block->getId() ?>"/>
+            <input type="hidden" name="back_url" value="<?= $block->getBackUrl() ?>"/>
+            <input type="hidden" name="reset_url" value="<?= $block->getResetUrl() ?>"/>
+            <input type="hidden" name="category_id" value="<?= $block->getCurrentCategoryId() ?>"/>
+            <input type="hidden" name="current_apply_url"
+                   value="<?= $block->escapeUrl($block->getCurrentApplyUrlEncoded()) ?>"/>
+            <div class="amfinder-title" data-amfinder-js="title">
+                <?= $block->escapeHtml($block->getFinder()->getName()) ?>
+            </div>
+            <ul class="amfinder-toggle">
+                <?php foreach ($block->getFinder()->getDropdowns() as $dropdown) : ?>
+                    <li style="width: <?= $block->getDropdownWidth() ?>%" class="am-item -list-item">
+                        <div class="dropdown-title"><?= $block->escapeHtml(__($dropdown->getName())) ?></div>
+                        <div class="dropdown-element amshopby-clearer">
+                            <?php if ($dropdown->getDisplayType() == DisplayType::DROPDOWN) : ?>
+                                <div class="amfinder-select-wrapper">
+                                    <select <?= $block->getDropdownAttributes($dropdown) ?> data-amfinder-js="select"
+                                                                                            class="amfinder-select">
+                                        <?= $block->getDropdownHtml($block->getFinder(), $dropdown); ?>
+                                    </select>
+                                </div>
+                            <?php else : ?>
+                                <div class="amfinder-dropdown-wrapper" data-amfinder-js="wrapper">
+                                    <div class="amfinder-dropdown" <?= $block->getDropdownAttributes($dropdown) ?>
+                                         data-amfinder-js="select">
+                                    <span data-amfinder-js="text">
+                                        <?= $block->escapeHtml(__('Please Select ...')); ?>
+                                    </span>
+                                        <span class="amfinder-reset"
+                                              title="<?= $block->escapeHtml(__('Reset option')); ?>"
+                                              data-amfinder="reset"></span>
+                                    </div>
+                                    <div class="amfinder-details" data-amfinder-js="select-details">
+                                        <?= $block->getDropdownHtml($block->getFinder(), $dropdown); ?>
+                                    </div>
+                                </div>
+                            <?php endif ?>
+                        </div>
+                    </li>
+                <?php endforeach ?>
+                <li class="last -list-item">
+
+                    <div class="amfinder-buttons <?= ($block->isButtonsVisible() ? '' : 'no-display') ?>"
+                         data-amfinder-js="buttons">
+                        <button class="button" name="reset" value="1" title="<?= $block->escapeHtml(__('Reset')); ?>"
+                                type="submit">
+                            <?= $block->escapeHtml(__('Reset')); ?>
+                        </button>
+                        <button class="button action primary" title="<?= $block->escapeHtml(__('Find')); ?>"
+                                type="submit">
+                            <?= $block->escapeHtml(__('Find')) ?>
+                        </button>
+                    </div>
+
+                    <div class="amfinder-buttons"
+                         data-amfinder-js="buttons">
+                        <?= 'Use the '; ?>
+                        <a title="<?= $block->escapeHtml(__('Ktype')); ?>" class="switch_searchType" data-ktype="0"
+                           style="text-decoration: underline; cursor: pointer">
+                            <?= '<span class="underline">REGO VIN Search</span>'; ?>
+                        </a>
+                    </div>
+
+                </li>
+            </ul>
+        </form>
+
+    </div>
+    <script type="text/javascript">
+        require(['jquery', 'Amasty_Finder/js/amfinder'], function ($) {
+            var finderConfig = <?= $block->getJsonConfig(); ?>;
+
+            $("#" + finderConfig.containerId).amfinder(finderConfig);
+
+            function _onSwitchType() {
+
+                let current_URL = new URL(window.location.href);
+                let search_params = current_URL.searchParams;
+
+                search_params.set('ktype', $(this).data('ktype'));
+                current_URL.search = search_params.toString();
+
+                window.location.href = current_URL.toString();
+            }
+
+            $("#" + finderConfig.containerId).on('click', "a.switch_searchType", _onSwitchType)
+        });
+    </script>
+    <br/>
+
+    <?php
+}

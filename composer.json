@@ -1,0 +1,25 @@
+{
+    "name": "amasty/finder",
+    "description": "Product Parts Finder By Amasty",
+    "require": {
+        "php": ">=7.3.0",
+        "amasty/base": ">=1.14.6",
+        "amasty/cron-schedule-list": "*"
+    },
+    "suggest": {
+        "amasty/module-mage-2.4.5-fix": "Install module-mage-2.4.5-fix to fix bugs with Product Collection Changes that were added in 2.4.5."
+    },
+    "type": "magento2-module",
+    "version": "1.12.0",
+    "license": [
+        "proprietary"
+    ],
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Amasty\\Finder\\": ""
+        }
+    }
+}

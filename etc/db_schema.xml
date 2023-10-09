@@ -1,0 +1,190 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) 2023 Amasty (https://www.amasty.com)
+ * @package Product Parts Finder for Magento 2
+ */-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="amasty_finder_finder" resource="default" engine="innodb" comment="amasty_finder_finder">
+        <column xsi:type="int" name="finder_id" padding="10" unsigned="true" nullable="false" identity="true"
+                comment="Finder_id"/>
+        <column xsi:type="smallint" name="cnt" padding="6" unsigned="false" nullable="false" identity="false"
+                default="0" comment="Count dropdowns"/>
+        <column xsi:type="varchar" name="name" nullable="false" length="255" comment="Name"/>
+        <column xsi:type="varchar" name="template" nullable="false" length="255" comment="Template"/>
+        <column xsi:type="varchar" name="meta_title" nullable="false" length="255" comment="Meta Title"/>
+        <column xsi:type="text" name="meta_descr" nullable="false" comment="Meta description"/>
+        <column xsi:type="varchar" name="custom_url" nullable="false" length="255" comment="Custom url"/>
+        <column xsi:type="smallint" name="default_category" padding="6" unsigned="false" nullable="false"
+                identity="false" default="0" comment="Add on default category"/>
+        <column xsi:type="smallint" name="hide_finder" padding="6" unsigned="false" nullable="false" identity="false"
+                default="0" comment="Hide on default category"/>
+        <column xsi:type="text" name="categories" nullable="false" comment="Add on categories"/>
+        <column xsi:type="text" name="position" nullable="false" comment="Add in block"/>
+        <column xsi:type="smallint" name="search_page" padding="6" unsigned="false" nullable="false" identity="false"
+                default="0" comment="Add on search page"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="finder_id"/>
+        </constraint>
+    </table>
+    <table name="amasty_finder_dropdown" resource="default" engine="innodb" comment="amasty_finder_dropdown">
+        <column xsi:type="int" name="dropdown_id" padding="10" unsigned="true" nullable="false" identity="true"
+                comment="Dropdown_id"/>
+        <column xsi:type="int" name="finder_id" padding="10" unsigned="true" nullable="false" identity="false"
+                comment="Finder_id"/>
+        <column xsi:type="smallint" name="pos" padding="6" unsigned="false" nullable="false" identity="false"
+                comment="Pos"/>
+        <column xsi:type="varchar" name="name" nullable="false" length="255" comment="name"/>
+        <column xsi:type="smallint" name="sort" padding="6" unsigned="false" nullable="false" identity="false"
+                comment="Sort"/>
+        <column xsi:type="smallint" name="range" padding="6" unsigned="false" nullable="false" identity="false"
+                comment="Range"/>
+        <column xsi:type="smallint" name="display_type" padding="6" unsigned="false" nullable="false" identity="false"
+                default="0" comment="Dropdown display type"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="dropdown_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="FK_B5B1E5E7D06C0EB1E87CC87310EF56B4" table="amasty_finder_dropdown"
+                    column="finder_id" referenceTable="amasty_finder_finder" referenceColumn="finder_id"
+                    onDelete="CASCADE"/>
+        <index referenceId="FINDER_ID" indexType="btree">
+            <column name="finder_id"/>
+        </index>
+    </table>
+    <table name="amasty_finder_import_file_log" resource="default" engine="innodb"
+           comment="amasty_finder_import_file_log">
+        <column xsi:type="int" name="file_id" padding="10" unsigned="true" nullable="false" identity="true"
+                comment="File_id"/>
+        <column xsi:type="varchar" name="file_name" nullable="false" length="255" comment="file_name"/>
+        <column xsi:type="int" name="finder_id" padding="10" unsigned="true" nullable="false" identity="false"
+                comment="Finder_id"/>
+        <column xsi:type="datetime" name="started_at" on_update="false" nullable="true" comment="Started_at"/>
+        <column xsi:type="datetime" name="updated_at" on_update="false" nullable="true" comment="Updated_at"/>
+        <column xsi:type="datetime" name="ended_at" on_update="false" nullable="true" comment="Ended_at"/>
+        <column xsi:type="int" name="count_lines" padding="10" unsigned="true" nullable="false" identity="false"
+                default="0" comment="Count_lines"/>
+        <column xsi:type="int" name="count_processing_lines" padding="10" unsigned="true" nullable="false"
+                identity="false" default="0" comment="Count_processing_lines"/>
+        <column xsi:type="int" name="last_start_processing_line" padding="10" unsigned="true" nullable="false"
+                identity="false" default="0" comment="Last_start_processing_line"/>
+        <column xsi:type="int" name="count_processing_rows" padding="10" unsigned="true" nullable="false"
+                identity="false" default="0" comment="Count_processing_rows"/>
+        <column xsi:type="int" name="count_errors" padding="10" unsigned="true" nullable="false" identity="false"
+                default="0" comment="Count_errors"/>
+        <column xsi:type="int" name="status" padding="10" unsigned="true" nullable="false" identity="false" default="0"
+                comment="Status"/>
+        <column xsi:type="boolean" name="is_locked" nullable="false" comment="Is_locked"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="file_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="FINDER_FILE">
+            <column name="file_name"/>
+            <column name="finder_id"/>
+        </constraint>
+    </table>
+    <table name="amasty_finder_import_file_log_history" resource="default" engine="innodb"
+           comment="amasty_finder_import_file_log_history">
+        <column xsi:type="int" name="file_id" padding="10" unsigned="true" nullable="false" identity="true"
+                comment="File_id"/>
+        <column xsi:type="varchar" name="file_name" nullable="false" length="255" comment="file_name"/>
+        <column xsi:type="int" name="finder_id" padding="10" unsigned="true" nullable="false" identity="false"
+                comment="Finder_id"/>
+        <column xsi:type="datetime" name="started_at" on_update="false" nullable="true" comment="Started_at"/>
+        <column xsi:type="datetime" name="updated_at" on_update="false" nullable="true" comment="Updated_at"/>
+        <column xsi:type="datetime" name="ended_at" on_update="false" nullable="true" comment="Ended_at"/>
+        <column xsi:type="int" name="count_lines" padding="10" unsigned="true" nullable="false" identity="false"
+                default="0" comment="Count_lines"/>
+        <column xsi:type="int" name="count_processing_lines" padding="10" unsigned="true" nullable="false"
+                identity="false" default="0" comment="Count_processing_lines"/>
+        <column xsi:type="int" name="count_processing_rows" padding="10" unsigned="true" nullable="false"
+                identity="false" default="0" comment="Count_processing_rows"/>
+        <column xsi:type="int" name="count_errors" padding="10" unsigned="true" nullable="false" identity="false"
+                default="0" comment="Count_errors"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="file_id"/>
+        </constraint>
+    </table>
+    <table name="amasty_finder_import_file_log_errors" resource="default" engine="innodb"
+           comment="amasty_finder_import_file_log_errors">
+        <column xsi:type="int" name="error_id" padding="10" unsigned="true" nullable="false" identity="true"
+                comment="Error_id"/>
+        <column xsi:type="int" name="import_file_log_id" padding="10" unsigned="true" nullable="true" identity="false"
+                comment="Import_file_log_id"/>
+        <column xsi:type="int" name="import_file_log_history_id" padding="10" unsigned="true" nullable="true"
+                identity="false" comment="Import_file_log_history_id"/>
+        <column xsi:type="datetime" name="created_at" on_update="false" nullable="true" comment="Created_at"/>
+        <column xsi:type="int" name="line" padding="10" unsigned="true" nullable="false" identity="false" default="0"
+                comment="Line"/>
+        <column xsi:type="text" name="message" nullable="false" comment="file_name"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="error_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="FK_FB4E0D88598B5842F0E91CDB219AB913"
+                    table="amasty_finder_import_file_log_errors" column="import_file_log_id"
+                    referenceTable="amasty_finder_import_file_log" referenceColumn="file_id" onDelete="SET NULL"/>
+        <constraint xsi:type="foreign" referenceId="FK_A422A834E76328398C03BA1C4EA085DD"
+                    table="amasty_finder_import_file_log_errors" column="import_file_log_history_id"
+                    referenceTable="amasty_finder_import_file_log_history" referenceColumn="file_id"
+                    onDelete="CASCADE"/>
+    </table>
+    <table name="amasty_finder_map" resource="default" engine="innodb" comment="amasty_finder_map">
+        <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="Id"/>
+        <column xsi:type="int" name="value_id" padding="10" unsigned="true" nullable="false" identity="false"
+                comment="Value_id"/>
+        <column xsi:type="int" name="pid" padding="10" unsigned="true" nullable="false" identity="false" comment="Pid"/>
+        <column xsi:type="varchar" name="sku" nullable="false" length="255" comment="Sku"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="AMASTY_FINDER_MAP_VALUE_ID_AMASTY_FINDER_VALUE_VALUE_ID"
+                    table="amasty_finder_map" column="value_id" referenceTable="amasty_finder_value"
+                    referenceColumn="value_id" onDelete="CASCADE"/>
+        <constraint xsi:type="unique" referenceId="MAP_UNIQ">
+            <column name="value_id"/>
+            <column name="sku"/>
+        </constraint>
+    </table>
+    <table name="amasty_finder_universal" resource="default" engine="innodb" comment="amasty_finder_universal">
+        <column xsi:type="int" name="universal_id" padding="10" unsigned="true" nullable="false" identity="true"
+                comment="Universal_id"/>
+        <column xsi:type="int" name="finder_id" padding="10" unsigned="true" nullable="false" identity="false"
+                comment="Finder_id"/>
+        <column xsi:type="varchar" name="sku" nullable="false" length="255" comment="Sku"/>
+        <column xsi:type="int" name="pid" padding="10" unsigned="true" nullable="false" identity="false" comment="Pid"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="universal_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="FK_1C09FF827ADB94A5B2EC909FE832E3CA" table="amasty_finder_universal"
+                    column="finder_id" referenceTable="amasty_finder_finder" referenceColumn="finder_id"
+                    onDelete="CASCADE"/>
+        <index referenceId="FK_DROPODOWN_UNIVERSAL" indexType="btree">
+            <column name="finder_id"/>
+        </index>
+    </table>
+    <table name="amasty_finder_value" resource="default" engine="innodb" comment="amasty_finder_value">
+        <column xsi:type="int" name="value_id" padding="10" unsigned="true" nullable="false" identity="true"
+                comment="Value_id"/>
+        <column xsi:type="int" name="parent_id" padding="10" unsigned="true" nullable="false" identity="false"
+                comment="Parent_id"/>
+        <column xsi:type="int" name="dropdown_id" padding="10" unsigned="true" nullable="false" identity="false"
+                comment="Dropdown_id"/>
+        <column xsi:type="varchar" name="name" nullable="false" length="255" comment="Name"/>
+        <column xsi:type="text" name="image" nullable="false" comment="Add images to options"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="value_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="FK_DF2DE65FA9B6228CC089995407625737" table="amasty_finder_value"
+                    column="dropdown_id" referenceTable="amasty_finder_dropdown" referenceColumn="dropdown_id"
+                    onDelete="CASCADE"/>
+        <constraint xsi:type="unique" referenceId="VALUE_UNIQ">
+            <column name="parent_id"/>
+            <column name="dropdown_id"/>
+            <column name="name"/>
+        </constraint>
+        <index referenceId="FK_VALUE_DROPDOWN" indexType="btree">
+            <column name="dropdown_id"/>
+        </index>
+    </table>
+</schema>

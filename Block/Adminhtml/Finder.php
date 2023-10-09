@@ -1,0 +1,27 @@
+<?php
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) 2023 Amasty (https://www.amasty.com)
+ * @package Product Parts Finder for Magento 2
+ */
+/**
+ * Copyright © 2015 Amasty. All rights reserved.
+ */
+
+namespace Amasty\Finder\Block\Adminhtml;
+
+class Finder extends \Magento\Backend\Block\Widget\Grid\Container
+{
+    /**
+     * Constructor
+     *
+     * @return void
+     */
+    protected function _construct()
+    {
+        $this->_controller = 'finder';
+        $this->_headerText = __('Product Parts Filnders');
+        $this->_addButtonLabel = __('Add New Item');
+        parent::_construct();
+    }
+}
